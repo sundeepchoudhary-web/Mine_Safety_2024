@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard on DGMS Annual Safety Report 2024</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0A1628; --coal:#131d2e; --card:#0e1e38;
+  --gold:#F4A900; --red:#E63946; --green:#06D6A0; --blue:#4CC9F0;
+  --text:#dce8f0; --muted:#7a9ab0; --border:rgba(244,169,0,0.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;}
+
+.hdr{background:linear-gradient(135deg,#060d1a,#0d1e38);border-bottom:2px solid var(--gold);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-icon{width:48px;height:48px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(244,169,0,0.07);}
+.hdr h1{font-family:'Rajdhani',sans-serif;font-size:1.35rem;font-weight:700;color:var(--gold);letter-spacing:1px;}
+.hdr p{font-size:0.72rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.hdr-right{display:flex;gap:10px;}
+.btn{border:none;border-radius:6px;padding:7px 14px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#c98600);color:#060d1a;}
+.btn-red{background:rgba(230,57,70,0.15);border:1px solid rgba(230,57,70,0.4);color:var(--red);}
+
+.main{padding:18px 24px;max-width:1900px;margin:0 auto;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:8px;padding:12px;position:relative;}
+.kpi.danger{border-top-color:var(--red);}
+.kpi.safe{border-top-color:var(--green);}
+.kpi-lbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;line-height:1.4;}
+.kpi-val{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;line-height:1;}
+.kpi-sub{font-size:0.65rem;margin-top:5px;color:var(--muted);}
+.kpi-sub.up{color:var(--red);}
+.kpi-sub.dn{color:var(--green);}
+
+.summary{background:rgba(244,169,0,0.06);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px;padding:10px 16px;margin-bottom:14px;font-size:0.82rem;line-height:1.7;}
+
+.filters{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.flbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:600;}
+.tbg{display:flex;gap:3px;}
+.tb{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--muted);border-radius:4px;padding:4px 10px;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.tb.on{background:rgba(244,169,0,0.18);border-color:var(--gold);color:var(--gold);font-weight:600;}
+.pb{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--muted);border-radius:20px;padding:3px 9px;font-size:0.67rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.pb.on{border-color:var(--blue);color:var(--blue);background:rgba(76,201,240,0.1);}
+.cblbl{display:flex;align-items:center;gap:5px;font-size:0.72rem;cursor:pointer;}
+.cblbl input{accent-color:var(--gold);}
+.sl{accent-color:var(--gold);width:110px;}
+.sel{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:4px;padding:4px 8px;font-size:0.72rem;font-family:'Inter',sans-serif;}
+.yr-disp{font-family:'Rajdhani',sans-serif;font-size:0.95rem;color:var(--gold);font-weight:700;min-width:80px;}
+
+.row{display:grid;gap:12px;margin-bottom:12px;}
+.r23{grid-template-columns:3fr 2fr;}
+.r2{grid-template-columns:1fr 1fr;}
+@media(max-width:1100px){.r23,.r2{grid-template-columns:1fr;}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;}
+.ctitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+.ctitle h3{font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.cbox{position:relative;}
+
+.sec{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin:16px 0 10px;display:flex;align-items:center;gap:8px;}
+.sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.75rem;}
+thead tr{background:rgba(244,169,0,0.1);border-bottom:2px solid var(--gold);}
+th{padding:8px 10px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);cursor:pointer;white-space:nowrap;user-select:none;}
+th:hover{color:#fff;}
+th.asc::after{content:' ↑';color:var(--blue);}
+th.desc::after{content:' ↓';color:var(--blue);}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);}
+tbody tr:hover{background:rgba(244,169,0,0.04);}
+td{padding:7px 10px;}
+td.r{text-align:right;font-family:'Rajdhani',sans-serif;font-size:0.82rem;}
+td.hi{color:var(--gold);font-weight:700;}
+.srch{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:4px;padding:6px 12px;font-size:0.75rem;width:200px;font-family:'Inter',sans-serif;margin-bottom:10px;}
+.srch::placeholder{color:var(--muted);}
+
+.acc-hdr{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:2px;}
+.acc-hdr h3{font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;}
+.acc-arrow{color:var(--gold);font-size:1rem;transition:transform .25s;}
+.acc-open .acc-arrow{transform:rotate(180deg);}
+.acc-body{display:none;background:rgba(10,22,40,.5);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:16px;margin-bottom:12px;}
+.acc-body.open{display:block;}
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:900px){.acc-grid{grid-template-columns:1fr;}}
+
+footer{background:var(--coal);border-top:1px solid var(--border);padding:10px 24px;text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:1px;}
+
+tr.hot{background:rgba(230,57,70,.18);}
+tr.warm{background:rgba(230,57,70,.08);}
+tr.cool{background:rgba(6,214,160,.06);}
+tr.cold{background:rgba(6,214,160,.14);}
+
+@media print{.hdr{position:relative;}.filters,.btn{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-icon">&#9938;</div>
+    <div>
+      <h1>DASHBOARD ON DGMS ANNUAL SAFETY REPORT 2024</h1>
+      <p>By Sundeep Choudhary &nbsp;|&nbsp; Manager (Mining)</p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-red" onclick="resetAll()">&#8635; Reset Filters</button>
+    <button class="btn btn-gold" onclick="window.print()">&#8659; Export PDF</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- KPI CARDS -->
+<div class="kpi-grid">
+  <div class="kpi safe">
+    <div class="kpi-lbl">Total Coal Mines (2024)</div>
+    <div class="kpi-val">542</div>
+    <div class="kpi-sub">CIL: 375 | SCCL: 52 | Others: 115</div>
+  </div>
+  <div class="kpi safe">
+    <div class="kpi-lbl">Coal Production (MT)</div>
+    <div class="kpi-val">1121.76</div>
+    <div class="kpi-sub dn">&#9650; 7% vs 2023 (1048 MT)</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-lbl">Fatal Accidents - Coal</div>
+    <div class="kpi-val" style="color:var(--red)">38</div>
+    <div class="kpi-sub">= Same as 2023</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-lbl">Fatalities - Coal</div>
+    <div class="kpi-val" style="color:var(--red)">49</div>
+    <div class="kpi-sub up">&#9650; 19.5% vs 2023 (41)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Serious Accidents - Coal</div>
+    <div class="kpi-val">119</div>
+    <div class="kpi-sub up">&#9650; 1.7% vs 2023 (117)</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-lbl">Fatality Rate /1000 Employed</div>
+    <div class="kpi-val" style="color:var(--red)">0.14</div>
+    <div class="kpi-sub up">&#9650; From 0.12 in 2023</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Fatal Accidents - Non-Coal</div>
+    <div class="kpi-val" style="color:#ff9070">33</div>
+    <div class="kpi-sub up">&#9650; 17.9% vs 2023 (28)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Fatalities - Non-Coal</div>
+    <div class="kpi-val" style="color:#ff9070">40</div>
+    <div class="kpi-sub up">&#9650; 21.2% vs 2023 (33)</div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary" id="summaryBox">
+  <strong style="color:var(--gold)">Executive Summary |</strong>
+  In 2024, coal mines recorded <strong>38 fatal accidents</strong> with <strong style="color:var(--red)">49 fatalities</strong> — fatality rate rose to <strong style="color:var(--red)">0.14</strong> per 1,000 employed (up from 0.12 in 2023).
+  Transportation machinery (31%) and Falls (24%) are the leading causes.
+  Non-coal mines saw <strong>33 fatal accidents</strong> (up 18% YoY).
+  Output per manshift hit a record <strong style="color:var(--green)">9.51</strong> in 2024.
+  Historically, fatality rates have fallen from <strong>0.94</strong> (1901-10) to <strong style="color:var(--green)">0.12</strong> (2021-24) — an <strong style="color:var(--green)">87% reduction</strong> over 120 years.
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+
+  <div class="fg">
+    <div class="flbl">Mine Type</div>
+    <div class="tbg" id="grpMine">
+      <button class="tb on" data-val="coal" onclick="pickGroup('grpMine',this);APP.mineType='coal';redrawAll()">Coal Mines</button>
+      <button class="tb" data-val="noncoal" onclick="pickGroup('grpMine',this);APP.mineType='noncoal';redrawAll()">Non-Coal Mines</button>
+      <button class="tb" data-val="both" onclick="pickGroup('grpMine',this);APP.mineType='both';redrawAll()">Both</button>
+    </div>
+  </div>
+
+  <div class="fg">
+    <div class="flbl">Year Range</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:.65rem;color:var(--muted)">From</span>
+      <input class="sl" type="range" id="slFrom" min="2011" max="2024" value="2011" oninput="onSlider()">
+      <span style="font-size:.65rem;color:var(--muted)">To</span>
+      <input class="sl" type="range" id="slTo" min="2011" max="2024" value="2024" oninput="onSlider()">
+      <span class="yr-disp" id="yrDisp">2011-2024</span>
+    </div>
+  </div>
+
+  <div class="fg">
+    <div class="flbl">Accident Type</div>
+    <select class="sel" id="accSel" onchange="APP.accType=this.value;redrawAll()">
+      <option value="both">Fatal &amp; Serious</option>
+      <option value="fatal">Fatal Only</option>
+      <option value="serious">Serious Only</option>
+    </select>
+  </div>
+
+  <div class="fg">
+    <div class="flbl">Working Place</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <label class="cblbl"><input type="checkbox" id="chkBG" checked onchange="redrawAll()"> Belowground</label>
+      <label class="cblbl"><input type="checkbox" id="chkOC" checked onchange="redrawAll()"> Opencast</label>
+      <label class="cblbl"><input type="checkbox" id="chkAG" checked onchange="redrawAll()"> Aboveground</label>
+    </div>
+  </div>
+
+  <div class="fg">
+    <div class="flbl">Cause Filter</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;" id="grpCause">
+      <button class="pb on" onclick="pickGroup('grpCause',this);APP.cause='all';redrawAll()">All</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='ground';redrawAll()">Ground Movement</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='transport';redrawAll()">Transportation</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='machinery';redrawAll()">Machinery</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='explosives';redrawAll()">Explosives</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='electricity';redrawAll()">Electricity</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='falls';redrawAll()">Falls</button>
+      <button class="pb" onclick="pickGroup('grpCause',this);APP.cause='others';redrawAll()">Others</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 1 -->
+<div class="sec">Trends &amp; Cause Analysis</div>
+<div class="row r23">
+  <div class="card">
+    <div class="ctitle">
+      <h3>Year-wise Fatal &amp; Serious Accidents</h3>
+      <div class="tbg" id="grpOverlay">
+        <button class="tb on" onclick="pickGroup('grpOverlay',this);APP.overlay=true;drawTrend()">Show Rate Overlay</button>
+        <button class="tb" onclick="pickGroup('grpOverlay',this);APP.overlay=false;drawTrend()">Hide Rate</button>
+      </div>
+    </div>
+    <div class="cbox" style="height:270px;"><canvas id="cTrend"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">
+      <h3>Accidents by Cause - 2024</h3>
+      <div class="tbg" id="grpDonut">
+        <button class="tb on" onclick="pickGroup('grpDonut',this);APP.donutMode='fatal';drawDonut()">Fatal</button>
+        <button class="tb" onclick="pickGroup('grpDonut',this);APP.donutMode='serious';drawDonut()">Serious</button>
+      </div>
+    </div>
+    <div class="cbox" style="height:270px;"><canvas id="cDonut"></canvas></div>
+  </div>
+</div>
+
+<!-- ROW 2 -->
+<div class="row r2">
+  <div class="card">
+    <div class="ctitle"><h3>Fatal &amp; Serious Accidents by Place (2020-2024)</h3></div>
+    <div class="cbox" style="height:250px;"><canvas id="cPlace"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">
+      <h3>Fatality Rate Trend</h3>
+      <div class="tbg" id="grpRate">
+        <button class="tb on" onclick="pickGroup('grpRate',this);APP.rateMode='emp';drawRate()">Per 1000 Emp</button>
+        <button class="tb" onclick="pickGroup('grpRate',this);APP.rateMode='ms';drawRate()">Per Lakh M/S</button>
+        <button class="tb" onclick="pickGroup('grpRate',this);APP.rateMode='mt';drawRate()">Per MT</button>
+      </div>
+    </div>
+    <div class="cbox" style="height:250px;"><canvas id="cRate"></canvas></div>
+  </div>
+</div>
+
+<!-- ROW 3 -->
+<div class="sec">Coal vs Non-Coal Comparison</div>
+<div class="card" style="margin-bottom:12px;">
+  <div class="ctitle">
+    <h3>Coal vs Non-Coal: Fatal &amp; Serious Accidents (2020-2024)</h3>
+    <div class="tbg" id="grpCmp">
+      <button class="tb on" onclick="pickGroup('grpCmp',this);APP.cmpMode='abs';drawCompare()">Absolute Numbers</button>
+      <button class="tb" onclick="pickGroup('grpCmp',this);APP.cmpMode='rate';drawCompare()">Rate per 1000</button>
+    </div>
+  </div>
+  <div class="cbox" style="height:240px;"><canvas id="cCompare"></canvas></div>
+</div>
+
+<!-- ROW 4 -->
+<div class="sec">Productivity vs Safety &amp; Dangerous Occurrences</div>
+<div class="row r2">
+  <div class="card">
+    <div class="ctitle"><h3>Output per Manshift vs Fatality Rate (2011-2024)</h3></div>
+    <div class="cbox" style="height:270px;"><canvas id="cScatter"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><h3>Dangerous Occurrences - Coal Mines 2024 (Total: 34)</h3></div>
+    <div class="cbox" style="height:270px;"><canvas id="cDanger"></canvas></div>
+  </div>
+</div>
+
+<!-- ROW 5: Company Table -->
+<div class="sec">Company-wise Fatal Accidents (2017-2024)</div>
+<div class="card" style="margin-bottom:12px;">
+  <input class="srch" id="srch" placeholder="Search company..." oninput="filterTable()">
+  <div class="tbl-wrap">
+    <table id="coTbl">
+      <thead>
+        <tr>
+          <th onclick="sortTbl(this,0)">Company</th>
+          <th onclick="sortTbl(this,1)">2017</th>
+          <th onclick="sortTbl(this,2)">2018</th>
+          <th onclick="sortTbl(this,3)">2019</th>
+          <th onclick="sortTbl(this,4)">2020</th>
+          <th onclick="sortTbl(this,5)">2021</th>
+          <th onclick="sortTbl(this,6)">2022</th>
+          <th onclick="sortTbl(this,7)">2023</th>
+          <th onclick="sortTbl(this,8)">2024*</th>
+          <th onclick="sortTbl(this,9)">Total</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody id="coBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ROW 6: Roof Fall Accordion -->
+<div class="sec">Roof Fall Deep-Dive (2020-2024)</div>
+<div class="acc-hdr" id="accHdr" onclick="toggleAcc()">
+  <h3>Roof Fall Accident Analysis - Click to Expand</h3>
+  <span class="acc-arrow">&#9660;</span>
+</div>
+<div class="acc-body" id="accBody">
+  <div class="acc-grid">
+    <div class="card">
+      <div class="ctitle"><h3>By Method of Work (5-yr Total)</h3></div>
+      <div class="cbox" style="height:220px;"><canvas id="cRfMethod"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><h3>By Height of Working (5-yr Total)</h3></div>
+      <div class="cbox" style="height:220px;"><canvas id="cRfHeight"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><h3>By Adequacy of Support (5-yr Total)</h3></div>
+      <div class="cbox" style="height:220px;"><canvas id="cRfAdequacy"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle"><h3>By Designation of Worker Killed (5-yr Total)</h3></div>
+      <div class="cbox" style="height:220px;"><canvas id="cRfDesig"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 7: Decade Table -->
+<div class="sec">Historical Decade-wise Safety Trends (1901-2024)</div>
+<div class="card" style="margin-bottom:20px;">
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Avg Fatal Accidents</th>
+          <th>Accident Rate</th>
+          <th>Avg Fatalities</th>
+          <th>Fatality Rate</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody id="decBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<footer>Data Source: DGMS Annual Report 2024 &nbsp;|&nbsp; * 2024 figures provisional &nbsp;|&nbsp; Dashboard by Sundeep Choudhary, Manager (Mining)</footer>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────
+var D = {
+  years:      [2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  coalFatal:  [65,79,77,59,54,67,56,49,51,48,43,24,38,38],
+  coalSer:    [533,536,456,379,302,269,266,265,193,117,186,181,117,119],
+  rateEmp:    [0.18,0.23,0.23,0.17,0.16,0.28,0.18,0.18,0.16,0.16,0.15,0.08,0.12,0.14],
+  rateMS:     [0.06,0.07,0.07,0.05,0.05,0.09,0.05,0.05,0.05,0.04,0.04,0.02,0.03,0.04],
+  rateMT:     [0.11,0.13,0.14,0.10,0.09,0.12,0.09,0.09,0.08,0.07,0.08,0.04,0.06,0.07],
+  oms:        [5.15,5.51,5.88,6.13,6.43,6.82,7.18,7.61,7.95,7.83,7.30,8.04,8.89,9.51],
+
+  plYears: [2020,2021,2022,2023,2024],
+  fBG: [15,16,9,8,9],  fOC: [24,21,11,24,21], fAG: [9,6,4,6,8],
+  sBG: [68,108,94,58,63], sOC: [21,32,44,31,25], sAG: [28,46,43,28,31],
+
+  fcLbl: ['Ground Movement','Transportation (excl.Winding)','Machinery (non-transport)','Explosives','Electricity','Falls (non-ground)','Other'],
+  fcDat: [6,12,7,2,1,9,1],
+  scLbl: ['Ground Movement','Winding Shafts','Transportation (excl.Winding)','Machinery (non-transport)','Explosives','Electricity','Falls (non-ground)','Other'],
+  scDat: [9,1,19,11,1,1,45,32],
+
+  ncYears:  [2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  ncFatal:  [58,39,45,39,42,45,45,40,33,40,28,33],
+  ncSer:    [52,44,35,37,22,26,58,24,45,48,35,31],
+  ncRate:   [0.35,0.24,0.22,0.23,0.29,0.23,0.25,0.23,0.23,0.25,0.15,0.18],
+
+  cos: [
+    {n:'BCCL',  v:[2,4,7,4,3,4,6,0]},
+    {n:'CCL',   v:[7,5,2,2,2,3,4,3]},
+    {n:'ECL',   v:[10,1,8,7,9,2,5,3]},
+    {n:'MCL',   v:[5,8,7,5,2,0,6,3]},
+    {n:'NCL',   v:[4,4,3,2,3,1,3,6]},
+    {n:'SECL',  v:[8,13,7,12,7,8,3,9]},
+    {n:'WCL',   v:[5,3,3,5,6,1,2,2]},
+    {n:'SCCL',  v:[12,8,8,9,7,4,6,7]},
+    {n:'NLC',   v:[1,1,2,0,0,0,1,2]},
+    {n:'WBPDCL',v:[0,0,0,0,0,0,0,1]}
+  ],
+
+  dngLbl: ['Breakage/Fracture of Machinery','Others','Subsidence / Potholing','Irruption of Water','Explosives','Over-winding of Cages','Spontaneous Heating (Surface)'],
+  dngDat: [9,9,8,4,2,1,1],
+
+  rfMeth: {l:['Board & Pillar Dev.','Depillaring Caving','Depillaring Stowing','Longwall Depillaring','Other Places'], d:[11,6,4,1,3]},
+  rfHt:   {l:['0-2 m','2-3 m','3-5 m','Not Available'], d:[3,14,7,1]},
+  rfAdq:  {l:['Adequate','Inadequate','Not Applicable'], d:[8,16,1]},
+  rfDes:  {l:['Support/Timberman','Others','Driller','Sub.Supv.Staff','Dresser','Trammer'], d:[14,8,4,3,3,1]},
+
+  dec: [
+    {p:'1901-1910', a:74,  ar:0.77, f:92,  fr:0.94},
+    {p:'1911-1920', a:138, ar:0.94, f:176, fr:1.29},
+    {p:'1921-1930', a:174, ar:0.99, f:219, fr:1.24},
+    {p:'1931-1940', a:172, ar:0.98, f:228, fr:1.33},
+    {p:'1941-1950', a:236, ar:0.87, f:273, fr:1.01},
+    {p:'1951-1960', a:222, ar:0.61, f:295, fr:0.82},
+    {p:'1961-1970', a:202, ar:0.48, f:260, fr:0.62},
+    {p:'1971-1980', a:187, ar:0.46, f:264, fr:0.55},
+    {p:'1981-1990', a:162, ar:0.30, f:186, fr:0.35},
+    {p:'1991-2000', a:140, ar:0.27, f:170, fr:0.33},
+    {p:'2001-2010', a:87,  ar:0.22, f:108, fr:0.27},
+    {p:'2011-2020', a:61,  ar:0.17, f:68,  fr:0.19},
+    {p:'2021-2024*',a:36,  ar:0.11, f:42,  fr:0.12}
+  ]
+};
+
+// ─── APP STATE ────────────────────────────────────────────────────
+var APP = {
+  mineType:'coal', yearFrom:2011, yearTo:2024,
+  accType:'both',  cause:'all',
+  overlay:true, donutMode:'fatal',
+  rateMode:'emp',  cmpMode:'abs'
+};
+
+// ─── CHART REGISTRY ──────────────────────────────────────────────
+var CH = {};
+
+// ─── CHART.JS SHARED OPTIONS ─────────────────────────────────────
+var TT = {
+  backgroundColor:'rgba(6,14,26,0.95)',
+  borderColor:'#F4A900', borderWidth:1,
+  titleColor:'#F4A900', bodyColor:'#dce8f0',
+  padding:10
+};
+var TICK = {color:'#7a9ab0', font:{size:10}};
+var GRID = {color:'rgba(255,255,255,0.05)'};
+var LEG  = {labels:{color:'#7a9ab0', font:{size:10}, boxWidth:10, padding:10}};
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function gc(id){ return document.getElementById(id).getContext('2d'); }
+
+function kc(id){ if(CH[id]){ CH[id].destroy(); CH[id]=null; } }
+
+function pickGroup(groupId, btn){
+  var g = document.getElementById(groupId);
+  g.querySelectorAll('.tb,.pb').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+function getYearIdxs(){
+  var out = [];
+  D.years.forEach(function(y,i){
+    if(y >= APP.yearFrom && y <= APP.yearTo) out.push(i);
+  });
+  return out;
+}
+
+function getPlaceData(){
+  var yrs = D.plYears.filter(function(y){ return y >= APP.yearFrom && y <= APP.yearTo; });
+  if(yrs.length === 0) yrs = D.plYears.slice();
+  var idxs = yrs.map(function(y){ return D.plYears.indexOf(y); });
+  return {yrs:yrs, idxs:idxs};
+}
+
+// ─── TREND CHART ─────────────────────────────────────────────────
+function drawTrend(){
+  kc('cTrend');
+  var idxs   = getYearIdxs();
+  var labels = idxs.map(function(i){ return D.years[i]; });
+  var ds     = [];
+
+  if(APP.mineType !== 'noncoal'){
+    if(APP.accType !== 'serious'){
+      ds.push({
+        label:'Coal Fatal Accidents',
+        data: idxs.map(function(i){ return D.coalFatal[i]; }),
+        borderColor:'#E63946', backgroundColor:'rgba(230,57,70,0.08)',
+        tension:0.35, fill:true, pointRadius:5, pointHoverRadius:8,
+        pointBackgroundColor:'#E63946', borderWidth:2.5
+      });
+    }
+    if(APP.accType !== 'fatal'){
+      ds.push({
+        label:'Coal Serious Accidents',
+        data: idxs.map(function(i){ return D.coalSer[i]; }),
+        borderColor:'#F4A900', backgroundColor:'transparent',
+        tension:0.35, fill:false, pointRadius:4, pointHoverRadius:7,
+        borderWidth:2, borderDash:[6,3]
+      });
+    }
+    if(APP.overlay && APP.accType !== 'serious'){
+      ds.push({
+        label:'Fatality Rate x100 (per 1000)',
+        data: idxs.map(function(i){ return Math.round(D.rateEmp[i]*100*100)/100; }),
+        borderColor:'#06D6A0', backgroundColor:'transparent',
+        tension:0.35, fill:false, pointRadius:3, borderWidth:1.5,
+        borderDash:[3,3], yAxisID:'y2'
+      });
+    }
+  }
+
+  if(APP.mineType !== 'coal'){
+    var ncIdxs = idxs.filter(function(i){
+      return D.ncYears.indexOf(D.years[i]) >= 0;
+    });
+    var ncIdxsNC = ncIdxs.map(function(i){ return D.ncYears.indexOf(D.years[i]); });
+    if(APP.accType !== 'serious' && ncIdxsNC.length){
+      ds.push({
+        label:'Non-Coal Fatal Accidents',
+        data: ncIdxsNC.map(function(i){ return D.ncFatal[i]; }),
+        borderColor:'#4CC9F0', backgroundColor:'transparent',
+        tension:0.35, fill:false, pointRadius:4, borderWidth:2, borderDash:[4,2]
+      });
+    }
+    if(APP.accType !== 'fatal' && ncIdxsNC.length){
+      ds.push({
+        label:'Non-Coal Serious Accidents',
+        data: ncIdxsNC.map(function(i){ return D.ncSer[i]; }),
+        borderColor:'#8ECAE6', backgroundColor:'transparent',
+        tension:0.35, fill:false, pointRadius:3, borderWidth:1.5, borderDash:[2,2]
+      });
+    }
+  }
+
+  if(!ds.length) ds.push({label:'No data',data:labels.map(function(){return 0;}),backgroundColor:'transparent'});
+
+  CH['cTrend'] = new Chart(gc('cTrend'), {
+    type:'line',
+    data:{labels:labels, datasets:ds},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:LEG.labels}, tooltip:TT},
+      scales:{
+        x:{ticks:TICK, grid:GRID},
+        y:{ticks:TICK, grid:GRID, beginAtZero:true,
+           title:{display:true, text:'No. of Accidents', color:'#7a9ab0', font:{size:10}}},
+        y2:{position:'right', ticks:{color:'#06D6A0', font:{size:10}},
+            grid:{drawOnChartArea:false},
+            title:{display:true, text:'Rate x100', color:'#06D6A0', font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ─── DONUT CHART ─────────────────────────────────────────────────
+function drawDonut(){
+  kc('cDonut');
+  var lbl = APP.donutMode==='fatal' ? D.fcLbl : D.scLbl;
+  var dat = APP.donutMode==='fatal' ? D.fcDat : D.scDat;
+  var clr = ['#4CC9F0','#F4A900','#06D6A0','#E63946','#FFD166','#118AB2','#EF476F','#8ECAE6'];
+
+  CH['cDonut'] = new Chart(gc('cDonut'), {
+    type:'doughnut',
+    data:{
+      labels:lbl,
+      datasets:[{
+        data:dat,
+        backgroundColor: clr.slice(0, lbl.length),
+        borderColor:'#0A1628', borderWidth:2, hoverOffset:8
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right', labels:{color:'#7a9ab0', font:{size:9}, boxWidth:9, padding:7}},
+        tooltip:{
+          backgroundColor:TT.backgroundColor, borderColor:TT.borderColor, borderWidth:TT.borderWidth,
+          titleColor:TT.titleColor, bodyColor:TT.bodyColor, padding:TT.padding,
+          callbacks:{
+            label:function(ctx){
+              var tot = ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+              return ' '+ctx.label+': '+ctx.raw+' ('+Math.round(ctx.raw/tot*1000)/10+'%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ─── PLACE CHART ─────────────────────────────────────────────────
+function drawPlace(){
+  kc('cPlace');
+  var pd   = getPlaceData();
+  var yrs  = pd.yrs;
+  var idxs = pd.idxs;
+  var bg = document.getElementById('chkBG').checked;
+  var oc = document.getElementById('chkOC').checked;
+  var ag = document.getElementById('chkAG').checked;
+  var sf = APP.accType !== 'serious';
+  var ss = APP.accType !== 'fatal';
+  var ds = [];
+
+  if(sf){
+    if(bg) ds.push({label:'Fatal-Belowground', data:idxs.map(function(i){return D.fBG[i];}), backgroundColor:'rgba(230,57,70,0.9)', stack:'fatal', borderRadius:2});
+    if(oc) ds.push({label:'Fatal-Opencast',    data:idxs.map(function(i){return D.fOC[i];}), backgroundColor:'rgba(230,57,70,0.55)',stack:'fatal', borderRadius:2});
+    if(ag) ds.push({label:'Fatal-Aboveground', data:idxs.map(function(i){return D.fAG[i];}), backgroundColor:'rgba(230,57,70,0.28)',stack:'fatal', borderRadius:2});
+  }
+  if(ss){
+    if(bg) ds.push({label:'Serious-Belowground', data:idxs.map(function(i){return D.sBG[i];}), backgroundColor:'rgba(244,169,0,0.9)', stack:'serious', borderRadius:2});
+    if(oc) ds.push({label:'Serious-Opencast',    data:idxs.map(function(i){return D.sOC[i];}), backgroundColor:'rgba(244,169,0,0.55)',stack:'serious', borderRadius:2});
+    if(ag) ds.push({label:'Serious-Aboveground', data:idxs.map(function(i){return D.sAG[i];}), backgroundColor:'rgba(244,169,0,0.28)',stack:'serious', borderRadius:2});
+  }
+  if(!ds.length) ds.push({label:'No data selected', data:yrs.map(function(){return 0;}), backgroundColor:'transparent'});
+
+  CH['cPlace'] = new Chart(gc('cPlace'), {
+    type:'bar',
+    data:{labels:yrs, datasets:ds},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:LEG.labels}, tooltip:TT},
+      scales:{
+        x:{ticks:TICK, grid:GRID, stacked:true},
+        y:{ticks:TICK, grid:GRID, beginAtZero:true, stacked:true,
+           title:{display:true, text:'No. of Accidents', color:'#7a9ab0', font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ─── RATE CHART ──────────────────────────────────────────────────
+function drawRate(){
+  kc('cRate');
+  var idxs   = getYearIdxs();
+  var labels = idxs.map(function(i){ return D.years[i]; });
+  var rMap   = {
+    emp:{data:D.rateEmp, lbl:'Fatality Rate per 1,000 Employed', col:'#E63946'},
+    ms: {data:D.rateMS,  lbl:'Rate per Lakh Manshifts',          col:'#F4A900'},
+    mt: {data:D.rateMT,  lbl:'Rate per Million Tonnes',           col:'#06D6A0'}
+  };
+  var r = rMap[APP.rateMode];
+
+  CH['cRate'] = new Chart(gc('cRate'), {
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:r.lbl,
+        data: idxs.map(function(i){ return r.data[i]; }),
+        borderColor:r.col, backgroundColor:r.col+'22',
+        fill:true, tension:0.4, pointRadius:5, pointHoverRadius:8,
+        pointBackgroundColor:r.col, borderWidth:2.5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:TT},
+      scales:{
+        x:{ticks:TICK, grid:GRID},
+        y:{ticks:TICK, grid:GRID, beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ─── COMPARE CHART ───────────────────────────────────────────────
+function drawCompare(){
+  kc('cCompare');
+  var yrs  = [2020,2021,2022,2023,2024];
+  var ci   = yrs.map(function(y){ return D.years.indexOf(y); });
+  var nci  = yrs.map(function(y){ return D.ncYears.indexOf(y); });
+  var ds;
+
+  if(APP.cmpMode === 'abs'){
+    ds = [
+      {label:'Coal Fatal',       data:ci.map(function(i){  return i>=0?D.coalFatal[i]:0;}), backgroundColor:'rgba(230,57,70,0.85)'},
+      {label:'Non-Coal Fatal',   data:nci.map(function(i){ return i>=0?D.ncFatal[i]:0;}),   backgroundColor:'rgba(255,140,107,0.85)'},
+      {label:'Coal Serious',     data:ci.map(function(i){  return i>=0?D.coalSer[i]:0;}),   backgroundColor:'rgba(244,169,0,0.8)'},
+      {label:'Non-Coal Serious', data:nci.map(function(i){ return i>=0?D.ncSer[i]:0;}),     backgroundColor:'rgba(255,220,100,0.7)'}
+    ];
+  } else {
+    ds = [
+      {label:'Coal Fatal Rate/1000',     data:ci.map(function(i){  return i>=0?D.rateEmp[i]:0;}), backgroundColor:'rgba(230,57,70,0.85)'},
+      {label:'Non-Coal Fatal Rate/1000', data:nci.map(function(i){ return i>=0?D.ncRate[i]:0;}),  backgroundColor:'rgba(255,140,107,0.85)'}
+    ];
+  }
+
+  CH['cCompare'] = new Chart(gc('cCompare'), {
+    type:'bar',
+    data:{labels:yrs, datasets:ds},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:LEG.labels}, tooltip:TT},
+      scales:{
+        x:{ticks:TICK, grid:GRID},
+        y:{ticks:TICK, grid:GRID, beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ─── SCATTER CHART ───────────────────────────────────────────────
+function drawScatter(){
+  kc('cScatter');
+  var idxs = getYearIdxs();
+  var pts  = idxs.map(function(i, pos){
+    return {x:D.oms[i], y:D.rateEmp[i], yr:D.years[i]};
+  });
+  var clrs = idxs.map(function(i, pos){
+    return 'hsla('+(30+pos*15)+',85%,60%,0.85)';
+  });
+
+  var yearLabelPlugin = {
+    id: 'yearLabels',
+    afterDatasetsDraw: function(chart){
+      var ctx  = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      chart.data.datasets[0].data.forEach(function(pt, i){
+        var el = meta.data[i];
+        if(!el) return;
+        ctx.save();
+        ctx.fillStyle = '#aabbc8';
+        ctx.font      = 'bold 9px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(pt.yr, el.x, el.y - 13);
+        ctx.restore();
+      });
+    }
+  };
+
+  CH['cScatter'] = new Chart(gc('cScatter'), {
+    type:'scatter',
+    data:{
+      datasets:[{
+        label:'OMS vs Fatality Rate',
+        data: pts,
+        backgroundColor: clrs,
+        pointRadius:9, pointHoverRadius:12,
+        borderColor:'#0a1628', borderWidth:1
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:TT.backgroundColor, borderColor:TT.borderColor, borderWidth:TT.borderWidth,
+          titleColor:TT.titleColor, bodyColor:TT.bodyColor, padding:TT.padding,
+          callbacks:{
+            label:function(ctx){
+              return ['Year: '+ctx.raw.yr, 'OMS: '+ctx.raw.x, 'Fatality Rate: '+ctx.raw.y];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:TICK, grid:GRID,
+           title:{display:true, text:'Output per Manshift (OMS)', color:'#7a9ab0', font:{size:10}}},
+        y:{ticks:TICK, grid:GRID, beginAtZero:true,
+           title:{display:true, text:'Fatality Rate per 1000', color:'#7a9ab0', font:{size:10}}}
+      }
+    },
+    plugins:[yearLabelPlugin]
+  });
+}
+
+// ─── DANGEROUS OCCURRENCES ───────────────────────────────────────
+function drawDanger(){
+  kc('cDanger');
+  var pairs = D.dngLbl.map(function(l,i){ return {l:l, d:D.dngDat[i]}; });
+  pairs.sort(function(a,b){ return b.d - a.d; });
+
+  CH['cDanger'] = new Chart(gc('cDanger'), {
+    type:'bar',
+    data:{
+      labels: pairs.map(function(p){ return p.l; }),
+      datasets:[{
+        label:'Cases',
+        data:  pairs.map(function(p){ return p.d; }),
+        backgroundColor: pairs.map(function(_,i){ return 'hsla('+(35+i*28)+',85%,58%,0.85)'; }),
+        borderRadius:3
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:TT},
+      scales:{
+        x:{ticks:TICK, grid:GRID, beginAtZero:true},
+        y:{ticks:{color:'#7a9ab0', font:{size:9}}, grid:GRID}
+      }
+    }
+  });
+}
+
+// ─── ROOF FALL CHARTS ────────────────────────────────────────────
+var rfDrawn = false;
+function drawRoofFall(){
+  if(rfDrawn) return;
+  rfDrawn = true;
+  var C = ['#F4A900','#4CC9F0','#06D6A0','#E63946','#FFD166','#118AB2'];
+
+  kc('cRfMethod');
+  CH['cRfMethod'] = new Chart(gc('cRfMethod'), {
+    type:'doughnut',
+    data:{labels:D.rfMeth.l, datasets:[{data:D.rfMeth.d, backgroundColor:C.slice(0,D.rfMeth.l.length), borderColor:'#0A1628', borderWidth:2}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'50%',
+      plugins:{legend:{position:'right', labels:{color:'#7a9ab0',font:{size:9},boxWidth:8,padding:6}}, tooltip:TT}}
+  });
+
+  kc('cRfHeight');
+  CH['cRfHeight'] = new Chart(gc('cRfHeight'), {
+    type:'bar',
+    data:{labels:D.rfHt.l, datasets:[{label:'Accidents (5yr)', data:D.rfHt.d,
+      backgroundColor:['#4CC9F0','#F4A900','#E63946','#888888'], borderRadius:3}]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:TT},
+      scales:{x:{ticks:TICK,grid:GRID}, y:{ticks:TICK,grid:GRID,beginAtZero:true}}}
+  });
+
+  kc('cRfAdequacy');
+  CH['cRfAdequacy'] = new Chart(gc('cRfAdequacy'), {
+    type:'doughnut',
+    data:{labels:D.rfAdq.l, datasets:[{data:D.rfAdq.d, backgroundColor:['#06D6A0','#E63946','#888888'], borderColor:'#0A1628', borderWidth:2}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'50%',
+      plugins:{legend:{position:'right', labels:{color:'#7a9ab0',font:{size:10},boxWidth:9,padding:6}}, tooltip:TT}}
+  });
+
+  kc('cRfDesig');
+  CH['cRfDesig'] = new Chart(gc('cRfDesig'), {
+    type:'bar',
+    data:{labels:D.rfDes.l, datasets:[{label:'Persons Killed (5yr)', data:D.rfDes.d, backgroundColor:C.slice(0,D.rfDes.l.length), borderRadius:3}]},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:TT},
+      scales:{x:{ticks:TICK,grid:GRID,beginAtZero:true}, y:{ticks:{color:'#7a9ab0',font:{size:9}},grid:GRID}}}
+  });
+}
+
+// ─── COMPANY TABLE ───────────────────────────────────────────────
+function buildCompanyTable(){
+  var tb = document.getElementById('coBody');
+  tb.innerHTML = '';
+  D.cos.forEach(function(co){
+    var tot  = co.v.reduce(function(a,b){return a+b;},0);
+    var last = co.v[7], prev = co.v[6];
+    var arrow = last>prev ? '<span style="color:var(--red);font-size:1rem">&#8593;</span>'
+              : last<prev ? '<span style="color:var(--green);font-size:1rem">&#8595;</span>'
+              : '<span style="color:#888">&#8594;</span>';
+    var tr = document.createElement('tr');
+    var cells = '<td class="hi">'+co.n+'</td>';
+    co.v.forEach(function(v){ cells += '<td class="r">'+(v>0?v:'-')+'</td>'; });
+    cells += '<td class="r hi">'+tot+'</td><td class="r">'+arrow+'</td>';
+    tr.innerHTML = cells;
+    tb.appendChild(tr);
+  });
+}
+
+var _sc=-1, _sd=1;
+function sortTbl(th, col){
+  document.querySelectorAll('#coTbl th').forEach(function(h){ h.classList.remove('asc','desc'); });
+  if(_sc===col) _sd*=-1; else {_sc=col; _sd=1;}
+  th.classList.add(_sd===1?'asc':'desc');
+  var tb   = document.getElementById('coBody');
+  var rows = Array.from(tb.rows);
+  rows.sort(function(a,b){
+    var av = a.cells[col].textContent.replace(/[^0-9.]/g,'');
+    var bv = b.cells[col].textContent.replace(/[^0-9.]/g,'');
+    if(av!==''&&bv!=='') return (parseFloat(av)-parseFloat(bv))*_sd;
+    return a.cells[col].textContent.localeCompare(b.cells[col].textContent)*_sd;
+  });
+  rows.forEach(function(r){ tb.appendChild(r); });
+}
+
+function filterTable(){
+  var q = document.getElementById('srch').value.toLowerCase();
+  Array.from(document.getElementById('coBody').rows).forEach(function(r){
+    r.style.display = r.cells[0].textContent.toLowerCase().indexOf(q)>=0 ? '' : 'none';
+  });
+}
+
+// ─── DECADE TABLE ────────────────────────────────────────────────
+function buildDecadeTable(){
+  var tb  = document.getElementById('decBody');
+  var max = Math.max.apply(null, D.dec.map(function(d){return d.fr;}));
+  var min = Math.min.apply(null, D.dec.map(function(d){return d.fr;}));
+  D.dec.forEach(function(row){
+    var n   = (row.fr-min)/(max-min);
+    var cls = n>0.75?'hot':n>0.5?'warm':n>0.25?'cool':'cold';
+    var risk= n>0.75?'&#128308; Critical':n>0.5?'&#128992; High':n>0.25?'&#128993; Moderate':'&#128994; Improving';
+    var fc  = n>0.5?'var(--red)':n>0.25?'var(--gold)':'var(--green)';
+    var tr  = document.createElement('tr');
+    tr.className = cls;
+    tr.innerHTML =
+      '<td class="hi">'+row.p+'</td>'+
+      '<td class="r">'+row.a+'</td>'+
+      '<td class="r">'+row.ar+'</td>'+
+      '<td class="r">'+row.f+'</td>'+
+      '<td class="r" style="color:'+fc+';font-weight:700">'+row.fr+'</td>'+
+      '<td>'+risk+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+// ─── ACCORDION ───────────────────────────────────────────────────
+function toggleAcc(){
+  var hdr  = document.getElementById('accHdr');
+  var body = document.getElementById('accBody');
+  var open = body.classList.contains('open');
+  if(open){
+    body.classList.remove('open');
+    hdr.classList.remove('acc-open');
+  } else {
+    body.classList.add('open');
+    hdr.classList.add('acc-open');
+    setTimeout(drawRoofFall, 60);
+  }
+}
+
+// ─── YEAR SLIDER ─────────────────────────────────────────────────
+function onSlider(){
+  var f = parseInt(document.getElementById('slFrom').value);
+  var t = parseInt(document.getElementById('slTo').value);
+  if(f > t){
+    if(f !== APP.yearFrom){
+      f = t;
+      document.getElementById('slFrom').value = f;
+    } else {
+      t = f;
+      document.getElementById('slTo').value = t;
+    }
+  }
+  APP.yearFrom = f;
+  APP.yearTo   = t;
+  document.getElementById('yrDisp').textContent = f+'-'+t;
+  redrawAll();
+}
+
+// ─── MASTER REDRAW ───────────────────────────────────────────────
+function redrawAll(){
+  drawTrend();
+  drawDonut();
+  drawPlace();
+  drawRate();
+  drawCompare();
+  drawScatter();
+}
+
+// ─── RESET ───────────────────────────────────────────────────────
+function resetAll(){
+  APP.mineType  = 'coal';
+  APP.yearFrom  = 2011;
+  APP.yearTo    = 2024;
+  APP.accType   = 'both';
+  APP.cause     = 'all';
+  APP.overlay   = true;
+  APP.donutMode = 'fatal';
+  APP.rateMode  = 'emp';
+  APP.cmpMode   = 'abs';
+
+  document.getElementById('slFrom').value  = 2011;
+  document.getElementById('slTo').value    = 2024;
+  document.getElementById('yrDisp').textContent = '2011-2024';
+  document.getElementById('accSel').value  = 'both';
+  document.getElementById('chkBG').checked = true;
+  document.getElementById('chkOC').checked = true;
+  document.getElementById('chkAG').checked = true;
+
+  // Reset each button group
+  var groups = ['grpMine','grpOverlay','grpDonut','grpRate','grpCmp'];
+  groups.forEach(function(gid){
+    var g = document.getElementById(gid);
+    if(!g) return;
+    g.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('on'); });
+    g.querySelector('.tb').classList.add('on');
+  });
+  var cg = document.getElementById('grpCause');
+  cg.querySelectorAll('.pb').forEach(function(b){ b.classList.remove('on'); });
+  cg.querySelector('.pb').classList.add('on');
+
+  rfDrawn = false;
+  redrawAll();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function(){
+  drawTrend();
+  drawDonut();
+  drawPlace();
+  drawRate();
+  drawCompare();
+  drawScatter();
+  drawDanger();
+  buildCompanyTable();
+  buildDecadeTable();
+});
+</script>
+</body>
+</html>
